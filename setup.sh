@@ -100,7 +100,7 @@ if command -v codex &>/dev/null; then
     CODEX_HOOKS="$PROJECT_DIR/.codex/hooks.json"
     mkdir -p "$PROJECT_DIR/.codex"
     if [ -f "$CODEX_HOOKS" ]; then
-        jq '.hooks.SessionStart = [{"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register codex 2>/dev/null || true"}], "matcher": ["startup", "resume"]}]' \
+        jq '.hooks.SessionStart = [{"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register codex 2>/dev/null || true"}], "matcher": "startup|resume"}]' \
             "$CODEX_HOOKS" > "$CODEX_HOOKS.tmp" && mv "$CODEX_HOOKS.tmp" "$CODEX_HOOKS"
     else
         cat > "$CODEX_HOOKS" << 'CEOF'
@@ -108,7 +108,7 @@ if command -v codex &>/dev/null; then
   "hooks": {
     "SessionStart": [
       {
-        "matcher": ["startup", "resume"],
+        "matcher": "startup|resume",
         "hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register codex 2>/dev/null || true"}]
       }
     ]
