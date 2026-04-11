@@ -1,8 +1,12 @@
 # fagents-tandem
 
-Paired agent coordination. Two AI coding agents (Claude Code + Codex CLI) share a project and take turns: one plans, the other reviews, one implements, the other reviews code. File-based state machine with TIOCSTI terminal wake.
+Not a replacement for [fagents](https://github.com/fagents/fagents) -- an experiment.
 
-No server, no daemon, no dependencies beyond bash, jq, and python3.
+fagents gives your agents a team. fagents-tandem gives two of them a shared workbench.
+
+Two AI coding agents (Claude Code + Codex CLI) share a project and take turns: one plans, the other reviews, one implements, the other reviews code. File-based state machine with TIOCSTI terminal wake. No server, no daemon, no dependencies beyond bash, jq, and python3.
+
+Token cost is real -- two agents means two billing streams. If that bothers you, use one agent. If it doesn't, find out what happens when they review each other's work.
 
 ## Setup
 
@@ -12,15 +16,14 @@ cd your-project
 bash path/to/fagents-tandem/setup.sh
 ```
 
-Register agent terminals — two options:
+Start Claude and Codex in separate terminals, then each agent registers (from project root):
 
-**A) Agents self-register** — the tandem skill tells each agent to do this at session start:
 ```bash
-tty > .tandem/claude.tty    # Claude Code registers itself
-tty > .tandem/codex.tty     # Codex CLI registers itself
+bash .tandem/bin/handoff.sh register claude    # in the Claude terminal
+bash .tandem/bin/handoff.sh register codex     # in the Codex terminal
 ```
 
-**B) Manual** — find TTYs and register from another terminal:
+Or manually:
 ```bash
 ps -eo tty,pid,comm | grep -E 'claude|codex'
 echo /dev/ttys002 > .tandem/claude.tty
