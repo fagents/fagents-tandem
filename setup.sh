@@ -81,7 +81,29 @@ if command -v codex &>/dev/null; then
     CODEX_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/tandem"
     mkdir -p "$CODEX_SKILL_DIR"
     cp "$SCRIPT_DIR/skill/SKILL.md" "$CODEX_SKILL_DIR/SKILL.md"
-    echo "  Installed Codex skill: ~/.codex/skills/tandem/"
+    echo "  Installed Codex skill: ${CODEX_HOME:-~/.codex}/skills/tandem/"
+
+    # Add SessionStart hook for auto-registration (experimental codex_hooks feature)
+    CODEX_HOOKS="$PROJECT_DIR/.codex/hooks.json"
+    mkdir -p "$PROJECT_DIR/.codex"
+    if [ -f "$CODEX_HOOKS" ]; then
+        jq '.hooks.SessionStart = [{"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register codex 2>/dev/null || true"}], "matcher": ["startup", "resume"]}]' \
+            "$CODEX_HOOKS" > "$CODEX_HOOKS.tmp" && mv "$CODEX_HOOKS.tmp" "$CODEX_HOOKS"
+    else
+        cat > "$CODEX_HOOKS" << 'CEOF'
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": ["startup", "resume"],
+        "hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register codex 2>/dev/null || true"}]
+      }
+    ]
+  }
+}
+CEOF
+    fi
+    echo "  Installed Codex SessionStart hook (auto-register)"
 fi
 
 # ── Project docs ──
