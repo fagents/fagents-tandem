@@ -61,7 +61,17 @@ Transitions poke the other agent's terminal via TIOCSTI. Messages are prefixed w
 
 ### TTY Registration
 
+Each agent registers their own TTY at session start (the tandem skill instructs them to do this):
+
 ```bash
-echo /dev/ttys002 > .tandem/agent1.tty
-echo /dev/ttys003 > .tandem/agent2.tty
+tty > .tandem/claude.tty    # Claude Code registers itself
+tty > .tandem/codex.tty     # Codex CLI registers itself
+```
+
+Or manually from another terminal:
+```bash
+# Find TTYs: look for claude/codex in process list
+ps -eo tty,pid,comm | grep -E 'claude|codex'
+echo /dev/ttys002 > .tandem/claude.tty
+echo /dev/ttys003 > .tandem/codex.tty
 ```

@@ -12,10 +12,19 @@ cd your-project
 bash path/to/fagents-tandem/setup.sh
 ```
 
-Register your agents' terminals:
+Register agent terminals — two options:
+
+**A) Agents self-register** — the tandem skill tells each agent to do this at session start:
 ```bash
-echo /dev/ttys002 > .tandem/kai.tty
-echo /dev/ttys003 > .tandem/rivet.tty
+tty > .tandem/claude.tty    # Claude Code registers itself
+tty > .tandem/codex.tty     # Codex CLI registers itself
+```
+
+**B) Manual** — find TTYs and register from another terminal:
+```bash
+ps -eo tty,pid,comm | grep -E 'claude|codex'
+echo /dev/ttys002 > .tandem/claude.tty
+echo /dev/ttys003 > .tandem/codex.tty
 ```
 
 ## Usage
@@ -32,8 +41,8 @@ bash .tandem/bin/handoff.sh status
 
 Hand off:
 ```bash
-bash .tandem/bin/handoff.sh next --to rivet --summary "plan ready"
-bash .tandem/bin/handoff.sh accept --to kai --summary "plan approved"
+bash .tandem/bin/handoff.sh next --to codex --summary "plan ready"
+bash .tandem/bin/handoff.sh accept --to claude --summary "plan approved"
 bash .tandem/bin/handoff.sh request-changes --summary "see review.md"
 bash .tandem/bin/handoff.sh done
 ```
@@ -63,7 +72,7 @@ TIOCSTI injects keystrokes into another terminal session. Works on macOS Sequoia
 
 ```bash
 # Manual wake
-sudo bash .tandem/bin/wake.sh rivet "[kai]: check .tandem/handoff/review.md"
+sudo bash .tandem/bin/wake.sh codex "[claude]: check .tandem/handoff/review.md"
 ```
 
 ## What it's not

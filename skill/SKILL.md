@@ -9,8 +9,13 @@ If `.tandem/` does not exist, ignore these instructions.
 
 ## At Session Start
 
-Check if you own the current task:
+1. Register your TTY so the other agent can wake you:
+```bash
+tty > .tandem/claude.tty   # if you are Claude Code
+tty > .tandem/codex.tty    # if you are Codex CLI
+```
 
+2. Check if you own the current task:
 ```bash
 bash .tandem/bin/handoff.sh status
 ```
