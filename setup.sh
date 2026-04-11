@@ -54,6 +54,26 @@ if command -v claude &>/dev/null; then
     mkdir -p "$CLAUDE_SKILL_DIR"
     cp "$SCRIPT_DIR/skill/SKILL.md" "$CLAUDE_SKILL_DIR/SKILL.md"
     echo "  Installed Claude skill: ~/.claude/skills/tandem/"
+
+    # Add SessionStart hook for auto-registration
+    SETTINGS="$PROJECT_DIR/.claude/settings.json"
+    mkdir -p "$PROJECT_DIR/.claude"
+    if [ -f "$SETTINGS" ]; then
+        # Merge hook into existing settings
+        jq '.hooks.SessionStart = [{"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register claude 2>/dev/null || true"}]}]' \
+            "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+    else
+        cat > "$SETTINGS" << 'SEOF'
+{
+  "hooks": {
+    "SessionStart": [
+      {"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register claude 2>/dev/null || true"}]}
+    ]
+  }
+}
+SEOF
+    fi
+    echo "  Installed Claude SessionStart hook (auto-register)"
 fi
 
 # ── Install skill for Codex ──
