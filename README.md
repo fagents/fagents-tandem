@@ -66,13 +66,6 @@ TIOCSTI injects keystrokes into another terminal session. Works on macOS Sequoia
 sudo bash .tandem/bin/wake.sh rivet "[kai]: check .tandem/handoff/review.md"
 ```
 
-## Migration from .agents/
-
-If you have an existing `.agents/` tandem setup:
-```bash
-bash path/to/fagents-tandem/setup.sh --migrate
-```
-
 ## What it's not
 
 - Not a messaging system or inbox

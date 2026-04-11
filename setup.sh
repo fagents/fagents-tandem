@@ -3,7 +3,6 @@
 #
 # Usage:
 #   bash setup.sh                    # fresh install in current directory
-#   bash setup.sh --migrate          # migrate from .agents/ to .tandem/
 #
 # Creates .tandem/ runtime directory + installs tandem skill for Claude/Codex.
 
@@ -12,62 +11,19 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="${PWD}"
 TANDEM_DIR="$PROJECT_DIR/.tandem"
-MIGRATE=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --migrate) MIGRATE=1; shift ;;
         --help|-h)
-            echo "Usage: bash setup.sh [--migrate]"
-            echo "  --migrate   Migrate from .agents/ to .tandem/"
+            echo "Usage: bash setup.sh"
             exit 0
             ;;
-        *) shift ;;
+        *) echo "Usage: bash setup.sh" >&2; exit 1 ;;
     esac
 done
 
 echo "=== fagents-tandem setup ==="
 echo ""
-
-# ── Migration from .agents/ ──
-if [[ -n "$MIGRATE" ]]; then
-    OLD_DIR="$PROJECT_DIR/.agents"
-    if [[ ! -d "$OLD_DIR" ]]; then
-        echo "No .agents/ directory found — nothing to migrate."
-    else
-        echo "Migrating tandem-owned files from .agents/ → .tandem/..."
-        mkdir -p "$TANDEM_DIR/bin" "$TANDEM_DIR/handoff"
-
-        # Move tandem-owned content only
-        for f in "$OLD_DIR/bin/handoff.sh" "$OLD_DIR/bin/wake.sh" "$OLD_DIR/bin/feature"; do
-            [[ -f "$f" ]] && mv "$f" "$TANDEM_DIR/bin/"
-        done
-        for f in "$OLD_DIR/handoff/"*; do
-            [[ -f "$f" ]] && mv "$f" "$TANDEM_DIR/handoff/"
-        done
-        for f in "$OLD_DIR/"*.tty; do
-            [[ -f "$f" ]] && mv "$f" "$TANDEM_DIR/"
-        done
-        # Don't copy old .gitignore — canonical version is written below
-
-        # Update refs in TEAM.md
-        if [[ -f "$PROJECT_DIR/TEAM.md" ]]; then
-            if sed --version 2>/dev/null | grep -q GNU; then
-                sed -i 's|\.agents/bin/|.tandem/bin/|g; s|\.agents/handoff/|.tandem/handoff/|g' "$PROJECT_DIR/TEAM.md"
-            else
-                sed -i '' 's|\.agents/bin/|.tandem/bin/|g; s|\.agents/handoff/|.tandem/handoff/|g' "$PROJECT_DIR/TEAM.md"
-            fi
-            echo "  Updated TEAM.md refs"
-        fi
-
-        # Clean empty old dirs (only if we emptied them)
-        rmdir "$OLD_DIR/bin" 2>/dev/null || true
-        rmdir "$OLD_DIR/handoff" 2>/dev/null || true
-
-        echo "  Migration complete. Old .agents/ may still contain non-tandem files."
-    fi
-    echo ""
-fi
 
 # ── Create .tandem/ ──
 echo "Setting up .tandem/..."
