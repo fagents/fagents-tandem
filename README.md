@@ -16,19 +16,14 @@ cd your-project
 bash path/to/fagents-tandem/setup.sh
 ```
 
-Start Claude and Codex in separate terminals, then each agent registers (from project root):
+This creates `.tandem/`, `CLAUDE.md`, `AGENTS.md`, and `TEAM.md`. That's it.
 
-```bash
-bash .tandem/bin/handoff.sh register claude    # in the Claude terminal
-bash .tandem/bin/handoff.sh register codex     # in the Codex terminal
-```
+Now start your agents:
 
-Or manually:
-```bash
-ps -eo tty,pid,comm | grep -E 'claude|codex'
-echo /dev/ttys002 > .tandem/claude.tty
-echo /dev/ttys003 > .tandem/codex.tty
-```
+1. Open a terminal, start Claude Code (`claude`). It reads CLAUDE.md and self-registers.
+2. Open another terminal, start Codex CLI (`codex`). It reads AGENTS.md and self-registers.
+
+Both agents discover the protocol automatically from their project docs. No manual TTY setup needed.
 
 ## Usage
 

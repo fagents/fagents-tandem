@@ -5,20 +5,16 @@
 ## Tandem
 
 This project uses paired agent coordination via `.tandem/`.
+You are the Codex CLI side. A Claude Code agent works in the same project.
 
-Run these from the project root at session start:
+**On every session start, immediately run both of these:**
 
-1. Register your TTY:
 ```bash
 bash .tandem/bin/handoff.sh register codex
-```
-
-2. Check state:
-```bash
 bash .tandem/bin/handoff.sh status
 ```
 
-3. If you own the current phase, pick up where you left off. If not, wait for a handoff.
+If you own the current phase, pick up where you left off. If not, wait for a handoff.
 
 ### State machine
 

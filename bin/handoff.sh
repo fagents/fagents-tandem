@@ -234,8 +234,26 @@ cmd_register() {
     local name="${1:-}"
     [ -z "$name" ] && die "Usage: handoff.sh register <name> (e.g. claude, codex)"
     [[ "$name" =~ ^[A-Za-z0-9_-]+$ ]] || die "Invalid name '$name' (use letters, numbers, hyphens, underscores)"
-    local tty_dev
-    tty_dev=$(tty 2>/dev/null) || die "Not running in a terminal"
+    local tty_dev=""
+    # Try tty first
+    tty_dev=$(tty 2>/dev/null) || true
+    # Fall back: walk up process tree to find first ancestor with a real TTY
+    # (Claude Code / Codex sandbox shells report tty=?? but their parent has the real TTY)
+    if [ -z "$tty_dev" ] || [ "$tty_dev" = "not a tty" ]; then
+        tty_dev=""
+        local pid=$$
+        for _ in 1 2 3 4 5; do
+            pid=$(ps -p "$pid" -o ppid= 2>/dev/null | tr -d '[:space:]')
+            [ -z "$pid" ] && break
+            local ptty
+            ptty=$(ps -p "$pid" -o tty= 2>/dev/null | tr -d '[:space:]')
+            if [ -n "$ptty" ] && [ "$ptty" != "??" ]; then
+                tty_dev="/dev/$ptty"
+                break
+            fi
+        done
+    fi
+    [ -z "$tty_dev" ] && die "Cannot detect TTY. Register manually: echo /dev/ttysXXX > .tandem/${name}.tty"
     echo "$tty_dev" > "$ROOT/.tandem/${name}.tty"
     echo "Registered $name: $tty_dev"
 }
