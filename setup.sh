@@ -83,7 +83,20 @@ if command -v codex &>/dev/null; then
     cp "$SCRIPT_DIR/skill/SKILL.md" "$CODEX_SKILL_DIR/SKILL.md"
     echo "  Installed Codex skill: ${CODEX_HOME:-~/.codex}/skills/tandem/"
 
-    # Add SessionStart hook for auto-registration (experimental codex_hooks feature)
+    # Enable codex_hooks feature in user config (required — repo-local config is untrusted)
+    CODEX_CONFIG="${CODEX_HOME:-$HOME/.codex}/config.toml"
+    if [ -f "$CODEX_CONFIG" ]; then
+        if ! grep -q 'codex_hooks' "$CODEX_CONFIG" 2>/dev/null; then
+            echo -e '\n[features]\ncodex_hooks = true' >> "$CODEX_CONFIG"
+            echo "  Enabled codex_hooks feature in $CODEX_CONFIG"
+        fi
+    else
+        mkdir -p "$(dirname "$CODEX_CONFIG")"
+        echo -e '[features]\ncodex_hooks = true' > "$CODEX_CONFIG"
+        echo "  Created $CODEX_CONFIG with codex_hooks enabled"
+    fi
+
+    # Add SessionStart hook for auto-registration
     CODEX_HOOKS="$PROJECT_DIR/.codex/hooks.json"
     mkdir -p "$PROJECT_DIR/.codex"
     if [ -f "$CODEX_HOOKS" ]; then
