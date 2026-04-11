@@ -1,0 +1,52 @@
+#!/bin/bash
+# Start a new feature. That's it.
+#
+# Usage: feature [--to agent] [--task slug] "description"
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Default owner: from config, env, or first .tty file found
+if [ -n "${TANDEM_DEFAULT_OWNER:-}" ]; then
+    OWNER="$TANDEM_DEFAULT_OWNER"
+elif [ -f "$ROOT/.tandem/config" ]; then
+    OWNER=$(grep -m1 '^default_owner=' "$ROOT/.tandem/config" 2>/dev/null | cut -d= -f2)
+fi
+OWNER="${OWNER:-}"
+if [ -z "$OWNER" ]; then
+    # Fallback: first .tty file found
+    for f in "$ROOT/.tandem/"*.tty; do
+        [ -f "$f" ] && OWNER=$(basename "$f" .tty) && break
+    done
+fi
+[ -z "$OWNER" ] && OWNER="agent1"
+
+TASK=""
+DESCRIPTION=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --to)   OWNER="$2"; shift 2 ;;
+        --task) TASK="$2"; shift 2 ;;
+        *)      DESCRIPTION="$1"; shift ;;
+    esac
+done
+[ -z "$DESCRIPTION" ] && { echo "Usage: feature [--to agent] [--task slug] \"description\""; exit 1; }
+
+# Infer repo from cwd
+REPO="general"
+if [[ "$PWD" == "$ROOT/"* ]]; then
+    REL="${PWD#$ROOT/}"
+    REPO="${REL%%/*}"
+fi
+
+# Generate slug if not provided
+if [ -z "$TASK" ]; then
+    TASK=$(echo "$DESCRIPTION" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | awk '{for(i=1;i<=5&&i<=NF;i++) printf "%s-",$i}' | sed 's/-$//' | cut -c1-32)
+    [ -z "$TASK" ] && TASK="task-$(date +%Y%m%d-%H%M%S)"
+fi
+
+# State first (unprivileged), wake second (best-effort)
+bash "$ROOT/.tandem/bin/handoff.sh" init --task "$TASK" --repo "$REPO" --owner "$OWNER" --summary "$DESCRIPTION"
+bash "$ROOT/.tandem/bin/wake.sh" "$OWNER" "[$(whoami)]: New feature — $DESCRIPTION. Run: bash .tandem/bin/handoff.sh status"
