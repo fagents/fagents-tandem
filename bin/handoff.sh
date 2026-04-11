@@ -230,6 +230,16 @@ cmd_done() {
     fi
 }
 
+cmd_register() {
+    local name="${1:-}"
+    [ -z "$name" ] && die "Usage: handoff.sh register <name> (e.g. claude, codex)"
+    [[ "$name" =~ ^[A-Za-z0-9_-]+$ ]] || die "Invalid name '$name' (use letters, numbers, hyphens, underscores)"
+    local tty_dev
+    tty_dev=$(tty 2>/dev/null) || die "Not running in a terminal"
+    echo "$tty_dev" > "$ROOT/.tandem/${name}.tty"
+    echo "Registered $name: $tty_dev"
+}
+
 # ── Dispatch ──
 
 CMD="${1:-status}"
@@ -244,5 +254,6 @@ case "$CMD" in
     back)             cmd_back "$@" ;;
     request-changes)  ACTION=request-changes cmd_back "$@" ;;
     done)             cmd_done ;;
-    *)                die "Unknown command: $CMD. Use: status|init|next|accept|take|back|request-changes|done" ;;
+    register)         cmd_register "$@" ;;
+    *)                die "Unknown command: $CMD. Use: status|init|next|accept|take|back|request-changes|done|register" ;;
 esac
