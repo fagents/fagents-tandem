@@ -4,9 +4,7 @@ Not a replacement for [fagents](https://github.com/fagents/fagents) -- an experi
 
 fagents gives your agents a team. fagents-tandem gives two of them a shared workbench.
 
-Two AI coding agents (Claude Code + Codex CLI) share a project and take turns: one plans, the other reviews, one implements, the other reviews code. File-based state machine with TIOCSTI terminal wake. No server, no daemon, no dependencies beyond bash, jq, and python3.
-
-Token cost is real -- two agents means two billing streams. If that bothers you, use one agent. If it doesn't, find out what happens when they review each other's work.
+Two AI coding agents share a project and take turns: one plans, the other reviews, one implements, the other reviews code. File-based state machine with terminal wake. No server, no daemon, no dependencies beyond bash, jq, and python3.
 
 ## Setup
 
