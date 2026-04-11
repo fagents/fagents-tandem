@@ -9,18 +9,15 @@ If `.tandem/` does not exist, ignore these instructions.
 
 ## At Session Start
 
-1. Register your TTY so the other agent can wake you:
-```bash
-tty > .tandem/claude.tty   # if you are Claude Code
-tty > .tandem/codex.tty    # if you are Codex CLI
-```
+Run these two commands immediately. Do NOT use `tty` directly -- it fails in sandboxed shells. The register command auto-detects your TTY by walking the process tree.
 
-2. Check if you own the current task:
 ```bash
+bash .tandem/bin/handoff.sh register claude   # if you are Claude Code
+bash .tandem/bin/handoff.sh register codex    # if you are Codex CLI
 bash .tandem/bin/handoff.sh status
 ```
 
-If you're the owner, pick up where you left off. If not, wait for a handoff.
+If you own the current phase, pick up where you left off. If not, wait for a handoff.
 
 ## State Machine
 
