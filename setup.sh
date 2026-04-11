@@ -64,12 +64,26 @@ if command -v codex &>/dev/null; then
     echo "  Installed Codex skill: ~/.codex/skills/tandem/"
 fi
 
-# ── TEAM.md ──
+# ── Project docs ──
 if [[ ! -f "$PROJECT_DIR/TEAM.md" ]]; then
     cp "$SCRIPT_DIR/templates/TEAM.md" "$PROJECT_DIR/TEAM.md"
-    echo "  Created TEAM.md from template"
+    echo "  Created TEAM.md"
 else
     echo "  TEAM.md already exists — skipping"
+fi
+
+if [[ ! -f "$PROJECT_DIR/CLAUDE.md" ]]; then
+    cp "$SCRIPT_DIR/templates/CLAUDE.md" "$PROJECT_DIR/CLAUDE.md"
+    echo "  Created CLAUDE.md"
+else
+    echo "  CLAUDE.md already exists — skipping"
+fi
+
+if [[ ! -f "$PROJECT_DIR/AGENTS.md" ]]; then
+    cp "$SCRIPT_DIR/templates/AGENTS.md" "$PROJECT_DIR/AGENTS.md"
+    echo "  Created AGENTS.md"
+else
+    echo "  AGENTS.md already exists — skipping"
 fi
 
 # ── Done ──
@@ -77,12 +91,6 @@ echo ""
 echo "=== Setup complete ==="
 echo ""
 echo "Next steps:"
-echo "  1. Register your agents' TTYs:"
-echo "     echo /dev/ttysXXX > .tandem/agent1.tty"
-echo "     echo /dev/ttysYYY > .tandem/agent2.tty"
-echo ""
-echo "  2. Start your first feature:"
-echo "     .tandem/bin/feature \"description of what to build\""
-echo ""
-echo "  3. Or check status:"
-echo "     bash .tandem/bin/handoff.sh status"
+echo "  1. Start Claude Code in one terminal -- it reads CLAUDE.md and self-registers."
+echo "  2. Start Codex CLI in another terminal -- it reads AGENTS.md and self-registers."
+echo "  3. Start a feature: .tandem/bin/feature \"description of what to build\""
