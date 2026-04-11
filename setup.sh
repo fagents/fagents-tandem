@@ -48,7 +48,7 @@ if [[ -n "$MIGRATE" ]]; then
         for f in "$OLD_DIR/"*.tty; do
             [[ -f "$f" ]] && mv "$f" "$TANDEM_DIR/"
         done
-        [[ -f "$OLD_DIR/.gitignore" ]] && cp "$OLD_DIR/.gitignore" "$TANDEM_DIR/.gitignore"
+        # Don't copy old .gitignore — canonical version is written below
 
         # Update refs in TEAM.md
         if [[ -f "$PROJECT_DIR/TEAM.md" ]]; then
@@ -81,16 +81,14 @@ for script in handoff.sh wake.sh feature; do
     fi
 done
 
-# .gitignore — track only bin/
-if [[ ! -f "$TANDEM_DIR/.gitignore" ]]; then
-    cat > "$TANDEM_DIR/.gitignore" << 'EOF'
+# .gitignore — always write canonical version (overwrite stale from migration)
+cat > "$TANDEM_DIR/.gitignore" << 'EOF'
 # Everything is runtime except bin/
 *
 !.gitignore
 !bin/
 !bin/**
 EOF
-fi
 
 echo "  Created .tandem/bin/ with handoff.sh, wake.sh, feature"
 
@@ -104,7 +102,7 @@ fi
 
 # ── Install skill for Codex ──
 if command -v codex &>/dev/null; then
-    CODEX_SKILL_DIR="$HOME/.codex/skills/tandem"
+    CODEX_SKILL_DIR="${CODEX_HOME:-$HOME/.codex}/skills/tandem"
     mkdir -p "$CODEX_SKILL_DIR"
     cp "$SCRIPT_DIR/skill/SKILL.md" "$CODEX_SKILL_DIR/SKILL.md"
     echo "  Installed Codex skill: ~/.codex/skills/tandem/"
