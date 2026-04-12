@@ -9,9 +9,9 @@ Features are built in phases. One agent owns each phase; the other reviews or wa
 ### Phases
 
 ```
-COORDINATE → PLAN → REVIEW_PLAN → IMPLEMENT → REVIEW_CODE → SIMPLIFY → QUALITY_REVIEW → COMMIT
-                ↑_______________↓         ↑________________↓       ↑____________________↓
-                  request-changes           request-changes            request-changes
+COORDINATE -> PLAN -> REVIEW_PLAN -> IMPLEMENT -> REVIEW_CODE -> SIMPLIFY -> QUALITY_REVIEW -> COMMIT
+               |________________|          |_________________|        |_____________________|
+                 request-changes             request-changes             request-changes
 ```
 
 | Phase | Owner | Work |
@@ -49,7 +49,7 @@ Or start a feature:
 1. Check state at session start. If you're the owner, pick up where you left off.
 2. Don't touch work you don't own.
 3. Write handoff files before transitioning.
-4. One transition per handoff — don't skip phases.
+4. One transition per handoff -- don't skip phases.
 5. Human can override state.json directly.
 
 ### Wake
@@ -69,3 +69,56 @@ Start agents via the launcher scripts for automatic registration:
 ```
 
 Manual fallback: `bash .tandem/bin/handoff.sh register claude` (or codex)
+
+## Code Quality
+
+Both agents follow the same quality bar. These apply to all phases, not just SIMPLIFY/QUALITY_REVIEW.
+
+### Testing
+
+- New features and bug fixes include tests in the same commit.
+- Run the relevant test scope for the change before declaring done.
+- If the full suite was not run, state what was skipped and why.
+- If tests can't be written, state why explicitly.
+
+### No Magic Numbers
+
+- Named constants over inline literals.
+- Thresholds, ports, sizes, intervals, retry counts -- all named and documented.
+
+### DRY
+
+- Don't duplicate logic -- extract shared helpers when the same pattern appears twice.
+- But don't over-abstract: three similar lines beats a premature abstraction.
+- When reviewing, flag near-duplicate blocks.
+
+### Reusability
+
+- Search for existing utilities and abstractions before writing new code.
+- Reuse what fits, but don't force code into the wrong abstraction.
+- Avoid unrelated scope creep -- small refactors that improve correctness or maintainability are fine.
+- New files are fine when they improve module boundaries.
+
+### No Bugs
+
+- Test the golden path AND edge cases.
+- Handle errors at system boundaries (user input, external APIs), trust internal code.
+- Validate assumptions with data, not guesses.
+
+### Readability
+
+- Code should be self-documenting -- comments explain WHY, not WHAT.
+- No unnecessary comments, no commented-out code.
+- Keep functions short and focused.
+
+### Security
+
+- Never commit secrets, tokens, .env contents.
+- Validate untrusted input.
+- Keep trust boundaries explicit.
+
+### Commit Discipline
+
+- Commit messages: focus on WHY, not WHAT.
+- One logical change per commit.
+- Push clean -- don't leave uncommitted or unpushed work.
