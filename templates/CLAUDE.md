@@ -44,3 +44,5 @@ bash .tandem/bin/handoff.sh done
 1. Don't touch work you don't own.
 2. Write handoff files before transitioning.
 3. One transition per handoff -- don't skip phases.
+
+See TEAM.md for the full protocol and code quality standards.
