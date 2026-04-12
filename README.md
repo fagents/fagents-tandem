@@ -14,14 +14,16 @@ cd your-project
 bash path/to/fagents-tandem/setup.sh
 ```
 
-This creates `.tandem/`, `CLAUDE.md`, `AGENTS.md`, and `TEAM.md`. That's it.
+This creates `.tandem/`, launcher scripts, project docs, and installs the tandem skill.
 
-Now start your agents:
+Start your agents:
 
-1. Open a terminal, start Claude Code (`claude`). It reads CLAUDE.md and self-registers.
-2. Open another terminal, start Codex CLI (`codex`). It reads AGENTS.md and self-registers.
+```bash
+./launch-claude    # terminal 1
+./launch-codex     # terminal 2
+```
 
-Both agents discover the protocol automatically from their project docs. No manual TTY setup needed.
+Each launcher registers the agent's TTY and starts the CLI. No manual setup needed.
 
 ## Usage
 

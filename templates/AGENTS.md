@@ -7,12 +7,13 @@
 This project uses paired agent coordination via `.tandem/`.
 You are the Codex CLI side. A Claude Code agent works in the same project.
 
-**On every session start, immediately run both of these:**
+Start via `./launch-codex` for automatic TTY registration. Then check state:
 
 ```bash
-bash .tandem/bin/handoff.sh register codex
 bash .tandem/bin/handoff.sh status
 ```
+
+If you started without the launcher, register manually: `bash .tandem/bin/handoff.sh register codex`
 
 If you own the current phase, pick up where you left off. If not, wait for a handoff.
 

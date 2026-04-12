@@ -1,0 +1,5 @@
+#!/bin/bash
+# Launch Codex CLI with tandem TTY registration
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+tty > "$ROOT/.tandem/codex.tty" 2>/dev/null || true
+exec codex "$@"

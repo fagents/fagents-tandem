@@ -4,7 +4,7 @@
 # Usage:
 #   bash setup.sh                    # fresh install in current directory
 #
-# Creates .tandem/ runtime directory + installs tandem skill for Claude/Codex.
+# Creates .tandem/, launcher scripts, and installs tandem skill for Claude/Codex.
 
 set -euo pipefail
 
@@ -37,9 +37,8 @@ for script in handoff.sh wake.sh feature; do
     fi
 done
 
-# .gitignore — always write canonical version (overwrite stale from migration)
+# .gitignore
 cat > "$TANDEM_DIR/.gitignore" << 'EOF'
-# Everything is runtime except bin/
 *
 !.gitignore
 !bin/
@@ -48,32 +47,53 @@ EOF
 
 echo "  Created .tandem/bin/ with handoff.sh, wake.sh, feature"
 
+# ── Launcher scripts ──
+for launcher in launch-claude launch-codex; do
+    if [[ ! -f "$PROJECT_DIR/$launcher" ]]; then
+        cp "$SCRIPT_DIR/templates/$launcher" "$PROJECT_DIR/$launcher"
+        chmod +x "$PROJECT_DIR/$launcher"
+        echo "  Created $launcher"
+    else
+        echo "  $launcher already exists -- skipping"
+    fi
+done
+
+# ── Clean up stale tandem hooks from previous setup.sh versions ──
+
+# Claude: remove only tandem-owned SessionStart entries
+CLAUDE_SETTINGS="$PROJECT_DIR/.claude/settings.json"
+if [ -f "$CLAUDE_SETTINGS" ] && jq -e '.hooks.SessionStart' "$CLAUDE_SETTINGS" &>/dev/null; then
+    jq '
+        .hooks.SessionStart |= [.[] | select(.hooks | all(.command | test("handoff.sh register claude") | not))]
+        | if (.hooks.SessionStart | length) == 0 then del(.hooks.SessionStart) else . end
+        | if (.hooks | length) == 0 then del(.hooks) else . end
+    ' "$CLAUDE_SETTINGS" > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"
+    echo "  Cleaned stale Claude tandem hook"
+fi
+
+# Codex: remove only tandem-owned SessionStart entries
+CODEX_HOOKS="$PROJECT_DIR/.codex/hooks.json"
+if [ -f "$CODEX_HOOKS" ] && jq -e '.hooks.SessionStart' "$CODEX_HOOKS" &>/dev/null; then
+    jq '
+        .hooks.SessionStart |= [.[] | select(.hooks | all(.command | test("handoff.sh register codex") | not))]
+        | if (.hooks.SessionStart | length) == 0 then del(.hooks.SessionStart) else . end
+        | if (.hooks | length) == 0 then del(.hooks) else . end
+    ' "$CODEX_HOOKS" > "$CODEX_HOOKS.tmp" && mv "$CODEX_HOOKS.tmp" "$CODEX_HOOKS"
+    # Remove file if completely empty
+    if jq -e '. == {}' "$CODEX_HOOKS" &>/dev/null; then
+        rm -f "$CODEX_HOOKS"
+    fi
+    echo "  Cleaned stale Codex tandem hook"
+fi
+
+# Note: global codex_hooks=true in ~/.codex/config.toml is left alone (user-level, may be used by other projects)
+
 # ── Install skill for Claude ──
 if command -v claude &>/dev/null; then
     CLAUDE_SKILL_DIR="$HOME/.claude/skills/tandem"
     mkdir -p "$CLAUDE_SKILL_DIR"
     cp "$SCRIPT_DIR/skill/SKILL.md" "$CLAUDE_SKILL_DIR/SKILL.md"
     echo "  Installed Claude skill: ~/.claude/skills/tandem/"
-
-    # Add SessionStart hook for auto-registration
-    SETTINGS="$PROJECT_DIR/.claude/settings.json"
-    mkdir -p "$PROJECT_DIR/.claude"
-    if [ -f "$SETTINGS" ]; then
-        # Merge hook into existing settings
-        jq '.hooks.SessionStart = [{"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register claude 2>/dev/null || true"}]}]' \
-            "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
-    else
-        cat > "$SETTINGS" << 'SEOF'
-{
-  "hooks": {
-    "SessionStart": [
-      {"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register claude 2>/dev/null || true"}]}
-    ]
-  }
-}
-SEOF
-    fi
-    echo "  Installed Claude SessionStart hook (auto-register)"
 fi
 
 # ── Install skill for Codex ──
@@ -82,70 +102,23 @@ if command -v codex &>/dev/null; then
     mkdir -p "$CODEX_SKILL_DIR"
     cp "$SCRIPT_DIR/skill/SKILL.md" "$CODEX_SKILL_DIR/SKILL.md"
     echo "  Installed Codex skill: ${CODEX_HOME:-~/.codex}/skills/tandem/"
-
-    # Enable codex_hooks feature in user config (required — repo-local config is untrusted)
-    CODEX_CONFIG="${CODEX_HOME:-$HOME/.codex}/config.toml"
-    if [ -f "$CODEX_CONFIG" ]; then
-        if ! grep -q 'codex_hooks' "$CODEX_CONFIG" 2>/dev/null; then
-            echo -e '\n[features]\ncodex_hooks = true' >> "$CODEX_CONFIG"
-            echo "  Enabled codex_hooks feature in $CODEX_CONFIG"
-        fi
-    else
-        mkdir -p "$(dirname "$CODEX_CONFIG")"
-        echo -e '[features]\ncodex_hooks = true' > "$CODEX_CONFIG"
-        echo "  Created $CODEX_CONFIG with codex_hooks enabled"
-    fi
-
-    # Add SessionStart hook for auto-registration
-    CODEX_HOOKS="$PROJECT_DIR/.codex/hooks.json"
-    mkdir -p "$PROJECT_DIR/.codex"
-    if [ -f "$CODEX_HOOKS" ]; then
-        jq '.hooks.SessionStart = [{"hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register codex 2>/dev/null || true"}], "matcher": "startup|resume"}]' \
-            "$CODEX_HOOKS" > "$CODEX_HOOKS.tmp" && mv "$CODEX_HOOKS.tmp" "$CODEX_HOOKS"
-    else
-        cat > "$CODEX_HOOKS" << 'CEOF'
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup|resume",
-        "hooks": [{"type": "command", "command": "bash .tandem/bin/handoff.sh register codex 2>/dev/null || true"}]
-      }
-    ]
-  }
-}
-CEOF
-    fi
-    echo "  Installed Codex SessionStart hook (auto-register)"
 fi
 
 # ── Project docs ──
-if [[ ! -f "$PROJECT_DIR/TEAM.md" ]]; then
-    cp "$SCRIPT_DIR/templates/TEAM.md" "$PROJECT_DIR/TEAM.md"
-    echo "  Created TEAM.md"
-else
-    echo "  TEAM.md already exists — skipping"
-fi
-
-if [[ ! -f "$PROJECT_DIR/CLAUDE.md" ]]; then
-    cp "$SCRIPT_DIR/templates/CLAUDE.md" "$PROJECT_DIR/CLAUDE.md"
-    echo "  Created CLAUDE.md"
-else
-    echo "  CLAUDE.md already exists — skipping"
-fi
-
-if [[ ! -f "$PROJECT_DIR/AGENTS.md" ]]; then
-    cp "$SCRIPT_DIR/templates/AGENTS.md" "$PROJECT_DIR/AGENTS.md"
-    echo "  Created AGENTS.md"
-else
-    echo "  AGENTS.md already exists — skipping"
-fi
+for tmpl in TEAM.md CLAUDE.md AGENTS.md; do
+    if [[ ! -f "$PROJECT_DIR/$tmpl" ]]; then
+        cp "$SCRIPT_DIR/templates/$tmpl" "$PROJECT_DIR/$tmpl"
+        echo "  Created $tmpl"
+    else
+        echo "  $tmpl already exists -- skipping"
+    fi
+done
 
 # ── Done ──
 echo ""
 echo "=== Setup complete ==="
 echo ""
 echo "Next steps:"
-echo "  1. Start Claude Code in one terminal -- it reads CLAUDE.md and self-registers."
-echo "  2. Start Codex CLI in another terminal -- it reads AGENTS.md and self-registers."
-echo "  3. Start a feature: .tandem/bin/feature \"description of what to build\""
+echo "  1. Start Claude Code: ./launch-claude"
+echo "  2. Start Codex CLI:   ./launch-codex"
+echo "  3. Start a feature:   .tandem/bin/feature \"description\""

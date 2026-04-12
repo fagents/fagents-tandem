@@ -9,12 +9,16 @@ If `.tandem/` does not exist, ignore these instructions.
 
 ## At Session Start
 
-Run these two commands immediately. Do NOT use `tty` directly -- it fails in sandboxed shells. The register command auto-detects your TTY by walking the process tree.
+If started via `./launch-claude` or `./launch-codex`, your TTY is already registered. Check state:
 
+```bash
+bash .tandem/bin/handoff.sh status
+```
+
+If started without the launcher, register manually (do NOT use `tty` directly -- it fails in sandboxed shells):
 ```bash
 bash .tandem/bin/handoff.sh register claude   # if you are Claude Code
 bash .tandem/bin/handoff.sh register codex    # if you are Codex CLI
-bash .tandem/bin/handoff.sh status
 ```
 
 If you own the current phase, pick up where you left off. If not, wait for a handoff.
