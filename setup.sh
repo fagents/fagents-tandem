@@ -60,26 +60,25 @@ done
 
 # ── Clean up stale tandem hooks from previous setup.sh versions ──
 
-# Claude: remove only tandem-owned SessionStart entries
+# Claude: remove only tandem-owned hook commands from SessionStart entries, keep the rest
 CLAUDE_SETTINGS="$PROJECT_DIR/.claude/settings.json"
 if [ -f "$CLAUDE_SETTINGS" ] && jq -e '.hooks.SessionStart' "$CLAUDE_SETTINGS" &>/dev/null; then
     jq '
-        .hooks.SessionStart |= [.[] | select(.hooks | all(.command | test("handoff.sh register claude") | not))]
+        .hooks.SessionStart |= [.[] | .hooks |= [.[] | select(.command | test("handoff.sh register claude") | not)] | select(.hooks | length > 0)]
         | if (.hooks.SessionStart | length) == 0 then del(.hooks.SessionStart) else . end
         | if (.hooks | length) == 0 then del(.hooks) else . end
     ' "$CLAUDE_SETTINGS" > "$CLAUDE_SETTINGS.tmp" && mv "$CLAUDE_SETTINGS.tmp" "$CLAUDE_SETTINGS"
     echo "  Cleaned stale Claude tandem hook"
 fi
 
-# Codex: remove only tandem-owned SessionStart entries
+# Codex: same — remove only tandem-owned hook commands, keep the rest
 CODEX_HOOKS="$PROJECT_DIR/.codex/hooks.json"
 if [ -f "$CODEX_HOOKS" ] && jq -e '.hooks.SessionStart' "$CODEX_HOOKS" &>/dev/null; then
     jq '
-        .hooks.SessionStart |= [.[] | select(.hooks | all(.command | test("handoff.sh register codex") | not))]
+        .hooks.SessionStart |= [.[] | .hooks |= [.[] | select(.command | test("handoff.sh register codex") | not)] | select(.hooks | length > 0)]
         | if (.hooks.SessionStart | length) == 0 then del(.hooks.SessionStart) else . end
         | if (.hooks | length) == 0 then del(.hooks) else . end
     ' "$CODEX_HOOKS" > "$CODEX_HOOKS.tmp" && mv "$CODEX_HOOKS.tmp" "$CODEX_HOOKS"
-    # Remove file if completely empty
     if jq -e '. == {}' "$CODEX_HOOKS" &>/dev/null; then
         rm -f "$CODEX_HOOKS"
     fi

@@ -1,5 +1,6 @@
 #!/bin/bash
 # Launch Codex CLI with tandem TTY registration
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-tty > "$ROOT/.tandem/codex.tty" 2>/dev/null || true
+TTY_DEV=$(tty 2>/dev/null) || true
+[[ "$TTY_DEV" == /dev/* ]] && echo "$TTY_DEV" > "$ROOT/.tandem/codex.tty"
 exec codex "$@"
