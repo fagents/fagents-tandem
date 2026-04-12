@@ -7,6 +7,16 @@ description: Multi-agent handoff protocol for paired development
 **This skill applies only when the current project contains a `.tandem/` directory.**
 If `.tandem/` does not exist, ignore these instructions.
 
+## Starting a Feature
+
+When the user asks to start a feature, build something, or requests new work:
+
+```bash
+bash .tandem/bin/feature "description from the user"
+```
+
+Options: `--to claude` or `--to codex` to assign, `--task slug` for a custom name.
+
 ## At Session Start
 
 If started via `./launch-claude` or `./launch-codex`, your TTY is already registered. Check state:
