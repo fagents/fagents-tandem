@@ -23,7 +23,7 @@ COORDINATE -> PLAN -> REVIEW_PLAN -> IMPLEMENT -> REVIEW_CODE -> SIMPLIFY -> QUA
 | REVIEW_CODE | reviewer | Review code, write `.tandem/handoff/review.md` |
 | SIMPLIFY | implementer | Claude: run `/simplify`. Codex: manual cleanup pass. Both: shellcheck, linter, tests, bug hunt, drying |
 | QUALITY_REVIEW | reviewer | Codex: run `/review` or `codex review --uncommitted`. Claude: independent quality review. Both: missed tests, safe dryups |
-| COMMIT | implementer | Commit + push |
+| COMMIT | implementer | Ask human, then commit + push |
 
 ### Commands
 
@@ -47,6 +47,10 @@ Or start a feature:
 ```bash
 .tandem/bin/feature "description of what to build"
 ```
+
+### Before Committing
+
+At the COMMIT phase, always ask the human before running git commit. Wait for confirmation. The human may want to review changes in Zed or another tool first.
 
 ### Rules
 

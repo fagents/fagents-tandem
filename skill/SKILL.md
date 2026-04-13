@@ -64,7 +64,7 @@ Reviews iterate: REVIEW_PLAN → PLAN, REVIEW_CODE → IMPLEMENT, QUALITY_REVIEW
 | REVIEW_CODE | reviewer | Review code, write `.tandem/handoff/review.md` |
 | SIMPLIFY | implementer | Claude: `/simplify`. Codex: manual cleanup. Both: shellcheck, linter, tests, bug hunt, drying |
 | QUALITY_REVIEW | reviewer | Codex: `/review` or `codex review --uncommitted`. Claude: independent quality review. Both: missed tests, safe dryups |
-| COMMIT | implementer | Commit + push |
+| COMMIT | implementer | Ask human, then commit + push |
 
 ## Commands
 
@@ -89,9 +89,17 @@ Write these before transitioning:
 - `.tandem/handoff/review.md` — review findings (Current Findings + Review Log)
 - `.tandem/handoff/impl-notes.md` — what changed, what to look at
 
+## Before Committing
+
+At the COMMIT phase, always ask the human before running git commit:
+
+> "Ready to commit? Review in Zed first? (say 'commit' to proceed, or 'let me look' to review)"
+
+Wait for confirmation. Do not commit without it.
+
 ## Rules
 
 1. Don't touch work you don't own.
 2. Write handoff files before transitioning.
-3. One transition per handoff — don't skip phases.
+3. One transition per handoff -- don't skip phases.
 4. Human can override `.tandem/handoff/state.json` directly.
