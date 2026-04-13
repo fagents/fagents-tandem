@@ -3,6 +3,7 @@
 #
 # Usage:
 #   bash setup.sh                    # fresh install in current directory
+#   bash setup.sh --update           # refresh scripts + show doc updates
 #
 # Creates .tandem/, launcher scripts, and installs tandem skill for Claude/Codex.
 
@@ -11,16 +12,46 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="${PWD}"
 TANDEM_DIR="$PROJECT_DIR/.tandem"
+UPDATE=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --update)   UPDATE=1; shift ;;
         --help|-h)
-            echo "Usage: bash setup.sh"
+            echo "Usage: bash setup.sh [--update]"
+            echo "  --update   Refresh scripts + show template changes for docs"
             exit 0
             ;;
-        *) echo "Usage: bash setup.sh" >&2; exit 1 ;;
+        *) echo "Usage: bash setup.sh [--update]" >&2; exit 1 ;;
     esac
 done
+
+# ── Doc update helper ──
+update_doc() {
+    local template="$1" target="$2"
+    local name artifact_dir artifact
+    name=$(basename "$target")
+    artifact_dir="$TANDEM_DIR/updates"
+    artifact="$artifact_dir/$name"
+    if [ ! -f "$target" ]; then
+        cp "$template" "$target"
+        echo "  Created $name"
+    elif diff -q "$template" "$target" >/dev/null 2>&1; then
+        echo "  $name: up to date"
+    elif [ -f "$artifact" ] && diff -q "$template" "$artifact" >/dev/null 2>&1; then
+        echo "  $name: update pending (merge .tandem/updates/$name first)"
+    else
+        rm -f "$artifact"
+        mkdir -p "$artifact_dir"
+        cp "$template" "$artifact"
+        echo "  $name differs from template:"
+        echo ""
+        diff -u "$target" "$artifact" || true
+        echo ""
+        echo "    New version: .tandem/updates/$name"
+        echo "    Merge into your $name, then: rm .tandem/updates/$name"
+    fi
+}
 
 echo "=== fagents-tandem setup ==="
 echo ""
@@ -29,7 +60,7 @@ echo ""
 echo "Setting up .tandem/..."
 mkdir -p "$TANDEM_DIR/bin" "$TANDEM_DIR/handoff"
 
-# Copy scripts
+# Copy scripts (always refresh — these are canonical)
 for script in handoff.sh wake.sh feature; do
     if [[ -f "$SCRIPT_DIR/bin/$script" ]]; then
         cp "$SCRIPT_DIR/bin/$script" "$TANDEM_DIR/bin/$script"
@@ -85,8 +116,6 @@ if [ -f "$CODEX_HOOKS" ] && jq -e '.hooks.SessionStart' "$CODEX_HOOKS" &>/dev/nu
     echo "  Cleaned stale Codex tandem hook"
 fi
 
-# Note: global codex_hooks=true in ~/.codex/config.toml is left alone (user-level, may be used by other projects)
-
 # ── Install skill for Claude ──
 if command -v claude &>/dev/null; then
     CLAUDE_SKILL_DIR="$HOME/.claude/skills/tandem"
@@ -104,14 +133,22 @@ if command -v codex &>/dev/null; then
 fi
 
 # ── Project docs ──
-for tmpl in TEAM.md CLAUDE.md AGENTS.md; do
-    if [[ ! -f "$PROJECT_DIR/$tmpl" ]]; then
-        cp "$SCRIPT_DIR/templates/$tmpl" "$PROJECT_DIR/$tmpl"
-        echo "  Created $tmpl"
-    else
-        echo "  $tmpl already exists -- skipping"
-    fi
-done
+if [[ -n "$UPDATE" ]]; then
+    echo ""
+    echo "Checking docs for updates..."
+    for tmpl in TEAM.md CLAUDE.md AGENTS.md; do
+        update_doc "$SCRIPT_DIR/templates/$tmpl" "$PROJECT_DIR/$tmpl"
+    done
+else
+    for tmpl in TEAM.md CLAUDE.md AGENTS.md; do
+        if [[ ! -f "$PROJECT_DIR/$tmpl" ]]; then
+            cp "$SCRIPT_DIR/templates/$tmpl" "$PROJECT_DIR/$tmpl"
+            echo "  Created $tmpl"
+        else
+            echo "  $tmpl already exists -- skipping"
+        fi
+    done
+fi
 
 # ── Done ──
 echo ""

@@ -76,6 +76,16 @@ TIOCSTI injects keystrokes into another terminal session. Works on macOS Sequoia
 sudo bash .tandem/bin/wake.sh codex "[claude]: check .tandem/handoff/review.md"
 ```
 
+## Updating
+
+Refresh scripts and check for template changes:
+
+```bash
+bash path/to/fagents-tandem/setup.sh --update
+```
+
+Scripts in `.tandem/bin/` are always refreshed. For docs (TEAM.md, CLAUDE.md, AGENTS.md), changed templates are written to `.tandem/updates/` for manual merge -- your customizations are never overwritten.
+
 ## What it's not
 
 - Not a messaging system or inbox
