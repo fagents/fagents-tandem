@@ -258,6 +258,23 @@ cmd_register() {
     echo "Registered $name: $tty_dev"
 }
 
+cmd_msg() {
+    local target="" from="" message=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --from) from="$2"; shift 2 ;;
+            *)
+                if [ -z "$target" ]; then target="$1"; shift
+                else message="$*"; break
+                fi ;;
+        esac
+    done
+    [ -z "$target" ] || [ -z "$message" ] && die "Usage: handoff.sh msg [--from sender] <agent> \"message\""
+    [ -z "$from" ] && die "Usage: handoff.sh msg --from <sender> <agent> \"message\" (--from is required)"
+    [[ "$from" =~ ^[A-Za-z0-9_-]+$ ]] || die "Invalid sender '$from' (use letters, numbers, hyphens, underscores)"
+    wake "$target" "[$from]: $message"
+}
+
 # ── Dispatch ──
 
 CMD="${1:-status}"
@@ -273,5 +290,6 @@ case "$CMD" in
     request-changes)  ACTION=request-changes cmd_back "$@" ;;
     done)             cmd_done ;;
     register)         cmd_register "$@" ;;
-    *)                die "Unknown command: $CMD. Use: status|init|next|accept|take|back|request-changes|done|register" ;;
+    msg)              cmd_msg "$@" ;;
+    *)                die "Unknown command: $CMD. Use: status|init|next|accept|take|back|request-changes|done|register|msg" ;;
 esac

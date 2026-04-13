@@ -31,6 +31,9 @@ bash .tandem/bin/handoff.sh accept --to <agent> --summary "..."
 bash .tandem/bin/handoff.sh request-changes --summary "..."
 bash .tandem/bin/handoff.sh status
 bash .tandem/bin/handoff.sh done
+
+# Quick message (no state change)
+bash .tandem/bin/handoff.sh msg --from codex claude "pushed the fix"
 ```
 
 ### Handoff files

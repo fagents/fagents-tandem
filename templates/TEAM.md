@@ -37,6 +37,10 @@ bash $H accept --to <agent> --summary "..."
 bash $H request-changes --summary "..."
 bash $H take --as <agent> --summary "..."
 bash $H done
+
+# One-off messages (no state change)
+bash $H msg --from claude codex "quick note"
+bash $H msg --from codex claude "heads up"
 ```
 
 Or start a feature:

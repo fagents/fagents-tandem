@@ -43,6 +43,9 @@ bash .tandem/bin/handoff.sh next --to codex --summary "plan ready"
 bash .tandem/bin/handoff.sh accept --to claude --summary "plan approved"
 bash .tandem/bin/handoff.sh request-changes --summary "see review.md"
 bash .tandem/bin/handoff.sh done
+
+# Quick message (no state change)
+bash .tandem/bin/handoff.sh msg --from claude codex "check this file"
 ```
 
 ## How it works

@@ -20,6 +20,17 @@ Do NOT just print the command or describe the protocol. Run it.
 
 Options: `--to claude` or `--to codex` to assign, `--task slug` for a custom name.
 
+## Sending Messages
+
+For quick notes, questions, or heads-ups that don't need a handoff:
+
+```bash
+bash .tandem/bin/handoff.sh msg --from claude codex "check fagents-cli/whatsapp.mjs line 42"
+bash .tandem/bin/handoff.sh msg --from codex claude "pushed the fix, pull and verify"
+```
+
+Use `msg` for lightweight communication. Use `next`/`accept`/`request-changes` for structured phase transitions.
+
 ## At Session Start
 
 If started via `./launch-claude` or `./launch-codex`, your TTY is already registered. Check state:
