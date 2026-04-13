@@ -21,8 +21,8 @@ COORDINATE -> PLAN -> REVIEW_PLAN -> IMPLEMENT -> REVIEW_CODE -> SIMPLIFY -> QUA
 | REVIEW_PLAN | reviewer | Review plan, write `.tandem/handoff/review.md` |
 | IMPLEMENT | implementer | Write code |
 | REVIEW_CODE | reviewer | Review code, write `.tandem/handoff/review.md` |
-| SIMPLIFY | implementer | /simplify, shellcheck, linter, tests, bug hunt, drying |
-| QUALITY_REVIEW | reviewer | Independent quality pass, missed tests, safe dryups |
+| SIMPLIFY | implementer | Claude: run `/simplify`. Codex: manual cleanup pass. Both: shellcheck, linter, tests, bug hunt, drying |
+| QUALITY_REVIEW | reviewer | Codex: run `/review` or `codex review --uncommitted`. Claude: independent quality review. Both: missed tests, safe dryups |
 | COMMIT | implementer | Commit + push |
 
 ### Commands

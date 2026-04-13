@@ -62,8 +62,8 @@ Reviews iterate: REVIEW_PLAN → PLAN, REVIEW_CODE → IMPLEMENT, QUALITY_REVIEW
 | REVIEW_PLAN | reviewer | Review plan, write `.tandem/handoff/review.md` |
 | IMPLEMENT | implementer | Write code |
 | REVIEW_CODE | reviewer | Review code, write `.tandem/handoff/review.md` |
-| SIMPLIFY | implementer | /simplify, shellcheck, linter, tests, bug hunt |
-| QUALITY_REVIEW | reviewer | Independent quality pass, missed tests |
+| SIMPLIFY | implementer | Claude: `/simplify`. Codex: manual cleanup. Both: shellcheck, linter, tests, bug hunt, drying |
+| QUALITY_REVIEW | reviewer | Codex: `/review` or `codex review --uncommitted`. Claude: independent quality review. Both: missed tests, safe dryups |
 | COMMIT | implementer | Commit + push |
 
 ## Commands
