@@ -42,13 +42,21 @@ update_doc() {
         echo "  $name: update pending (merge .tandem/updates/$name first)"
     else
         rm -f "$artifact"
-        mkdir -p "$artifact_dir"
-        cp "$template" "$artifact"
         echo "  $name differs from template:"
         echo ""
-        diff -u "$target" "$artifact" || true
+        diff -u "$target" "$template" || true
         echo ""
-        echo "    New version: .tandem/updates/$name"
+        if [ -t 0 ]; then
+            read -rp "  Apply update to $name? [y/N] " answer || answer=""
+            case "$answer" in [Yy])
+                cp "$template" "$target"
+                echo "  Updated $name"
+                return
+                ;; esac
+        fi
+        mkdir -p "$artifact_dir"
+        cp "$template" "$artifact"
+        echo "  Skipped. New version saved to .tandem/updates/$name"
         echo "    Merge into your $name, then: rm .tandem/updates/$name"
     fi
 }

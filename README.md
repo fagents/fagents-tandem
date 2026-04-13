@@ -84,7 +84,7 @@ Refresh scripts and check for template changes:
 bash path/to/fagents-tandem/setup.sh --update
 ```
 
-Scripts in `.tandem/bin/` are always refreshed. For docs (TEAM.md, CLAUDE.md, AGENTS.md), changed templates are written to `.tandem/updates/` for manual merge -- your customizations are never overwritten.
+Scripts in `.tandem/bin/` are always refreshed. For docs (TEAM.md, CLAUDE.md, AGENTS.md), the diff is shown and you're asked to apply or skip per file. Skipped updates are saved to `.tandem/updates/` for later manual merge. Your customizations are never overwritten without confirmation.
 
 ## What it's not
 
