@@ -21,8 +21,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 HANDOFF_DIR="$ROOT/.tandem/handoff"
 STATE_FILE="$HANDOFF_DIR/state.json"
 EVENTS_FILE="$HANDOFF_DIR/events.jsonl"
-AGENTS_DIR="$ROOT/.tandem"
-
 mkdir -p "$HANDOFF_DIR"
 
 # ── Helpers ──
@@ -109,6 +107,8 @@ cmd_init() {
     [ -z "$owner" ] && die "--owner required"
     [ -z "$repo" ] && repo="general"
     [ -z "$summary" ] && summary="Task created"
+    [ -f "$STATE_FILE" ] && die "Active task exists. Run 'handoff.sh done' first, or remove $STATE_FILE manually."
+    rm -f "$HANDOFF_DIR/plan.md" "$HANDOFF_DIR/review.md" "$HANDOFF_DIR/impl-notes.md"
     write_state "$task" "COORDINATE" "$owner" "$repo" "$summary" "" 1
     append_event "init" "$task" "$repo" "" "COORDINATE" "" "$owner" 1 "$summary"
     echo "Initialized: $task | COORDINATE r1 | owner: $owner"

@@ -37,7 +37,7 @@ done
 # Infer repo from cwd
 REPO="general"
 if [[ "$PWD" == "$ROOT/"* ]]; then
-    REL="${PWD#$ROOT/}"
+    REL="${PWD#"$ROOT"/}"
     REPO="${REL%%/*}"
 fi
 
