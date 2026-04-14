@@ -158,6 +158,46 @@ else
     done
 fi
 
+# ── Optional: Zed editor (fresh setup only, TTY only) ──
+if [[ -z "$UPDATE" ]] && [ -t 0 ]; then
+    ZED_FOUND=""
+    OS="$(uname -s)"
+    if [[ "$OS" == "Darwin" ]] && [[ -d "/Applications/Zed.app" ]]; then
+        ZED_FOUND=1
+    fi
+    if command -v zed &>/dev/null; then
+        ZED_FOUND=1
+    fi
+
+    if [[ -n "$ZED_FOUND" ]]; then
+        echo "  Zed already installed"
+    else
+        echo ""
+        echo "=== Optional: Zed editor ==="
+        echo "  Zed is a fast editor for reviewing code changes before committing."
+        read -rp "  Install Zed? [y/N] " zed_answer || zed_answer=""
+        case "$zed_answer" in [Yy])
+            if [[ "$OS" == "Darwin" ]]; then
+                if command -v brew &>/dev/null; then
+                    echo "  Installing Zed via Homebrew..."
+                    brew install --cask zed 2>&1 || {
+                        echo "  Install failed. Install manually: brew install --cask zed"
+                    }
+                else
+                    echo "  Homebrew not found. Install manually: brew install --cask zed"
+                fi
+            elif [[ "$OS" == "Linux" ]]; then
+                echo "  Installing Zed..."
+                curl -f https://zed.dev/install.sh | sh 2>&1 || {
+                    echo "  Install failed. Install manually: curl -f https://zed.dev/install.sh | sh"
+                }
+            else
+                echo "  Unsupported OS. Install Zed manually: https://zed.dev"
+            fi
+            ;; esac
+    fi
+fi
+
 # ── Done ──
 echo ""
 echo "=== Setup complete ==="

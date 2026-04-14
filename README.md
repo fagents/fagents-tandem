@@ -14,7 +14,7 @@ cd your-project
 bash path/to/fagents-tandem/setup.sh
 ```
 
-This creates `.tandem/`, launcher scripts, project docs, and installs the tandem skill.
+This creates `.tandem/`, launcher scripts, project docs, and installs the tandem skill. Optionally installs [Zed](https://zed.dev) for human code review.
 
 Start your agents:
 
