@@ -131,7 +131,7 @@ Both agents follow the same quality bar. These apply to all phases, not just SIM
 - Validate untrusted input.
 - Keep trust boundaries explicit.
 - See SECURITY.md for project-specific security surface and checklist.
-- Agents maintain SECURITY.md: populate it on first review, update it when the security surface changes.
+- The implementer maintains SECURITY.md: populate it on first feature, update during SIMPLIFY when the security surface changes. Reviewers flag gaps in review.md.
 
 ### Commit Discipline
 

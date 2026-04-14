@@ -101,10 +101,11 @@ Write these before transitioning:
 
 ## Maintaining SECURITY.md
 
-SECURITY.md is the project-specific security reference. Agents maintain it:
+SECURITY.md is the project-specific security reference. The implementer maintains it:
 
-- **First review**: If SECURITY.md still has HTML comment placeholders, fill in the Stack and Trust Boundaries sections based on what you see in the codebase.
-- **During reviews**: If a feature changes the security surface (new dependencies, new input sources, new trust boundaries), update SECURITY.md as part of your review.
+- **First feature**: If SECURITY.md still has HTML comment placeholders, fill in the Stack and Trust Boundaries sections based on what you see in the codebase.
+- **During SIMPLIFY**: If the feature changes the security surface (new dependencies, new input sources, new trust boundaries), update SECURITY.md.
+- **From review findings**: Reviewers flag SECURITY.md gaps in review.md. The implementer applies those updates during SIMPLIFY.
 - **Checklist**: Add project-specific checklist items as you discover them. Remove items that don't apply to this project.
 
 ## Before Committing
