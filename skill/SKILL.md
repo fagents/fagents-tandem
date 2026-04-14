@@ -61,9 +61,9 @@ Reviews iterate: REVIEW_PLAN → PLAN, REVIEW_CODE → IMPLEMENT, QUALITY_REVIEW
 | PLAN | planner | Draft `.tandem/handoff/plan.md` |
 | REVIEW_PLAN | reviewer | Review plan, write `.tandem/handoff/review.md` |
 | IMPLEMENT | implementer | Write code |
-| REVIEW_CODE | reviewer | Review code, write `.tandem/handoff/review.md` |
+| REVIEW_CODE | reviewer | Review code and security (see SECURITY.md), write `.tandem/handoff/review.md` |
 | SIMPLIFY | implementer | Run your tool (Claude: `/simplify`, Codex: manual cleanup). Both: shellcheck, linter, tests, bug hunt, DRY. Fix what you find. |
-| QUALITY_REVIEW | reviewer | Run your tool (Codex: `/review` or `codex review --uncommitted`, Claude: independent review). Both: missed tests, safe DRY-ups, readability. Write findings to review.md. If issues found, request-changes back to SIMPLIFY for fixes. |
+| QUALITY_REVIEW | reviewer | Run your tool (Codex: `/review` or `codex review --uncommitted`, Claude: independent review). Both: missed tests, safe DRY-ups, readability, security (see SECURITY.md). Write findings to review.md. If issues found, request-changes back to SIMPLIFY for fixes. |
 | COMMIT | implementer | Ask human, then commit + push |
 
 ## Handoff Rules
@@ -98,6 +98,14 @@ Write these before transitioning:
 - `.tandem/handoff/plan.md` — plan draft
 - `.tandem/handoff/review.md` — review findings (Current Findings + Review Log)
 - `.tandem/handoff/impl-notes.md` — what changed, what to look at
+
+## Maintaining SECURITY.md
+
+SECURITY.md is the project-specific security reference. Agents maintain it:
+
+- **First review**: If SECURITY.md still has HTML comment placeholders, fill in the Stack and Trust Boundaries sections based on what you see in the codebase.
+- **During reviews**: If a feature changes the security surface (new dependencies, new input sources, new trust boundaries), update SECURITY.md as part of your review.
+- **Checklist**: Add project-specific checklist items as you discover them. Remove items that don't apply to this project.
 
 ## Before Committing
 

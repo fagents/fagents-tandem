@@ -144,11 +144,11 @@ fi
 if [[ -n "$UPDATE" ]]; then
     echo ""
     echo "Checking docs for updates..."
-    for tmpl in TEAM.md CLAUDE.md AGENTS.md; do
+    for tmpl in TEAM.md CLAUDE.md AGENTS.md SECURITY.md; do
         update_doc "$SCRIPT_DIR/templates/$tmpl" "$PROJECT_DIR/$tmpl"
     done
 else
-    for tmpl in TEAM.md CLAUDE.md AGENTS.md; do
+    for tmpl in TEAM.md CLAUDE.md AGENTS.md SECURITY.md; do
         if [[ ! -f "$PROJECT_DIR/$tmpl" ]]; then
             cp "$SCRIPT_DIR/templates/$tmpl" "$PROJECT_DIR/$tmpl"
             echo "  Created $tmpl"

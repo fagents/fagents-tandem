@@ -20,9 +20,9 @@ COORDINATE -> PLAN -> REVIEW_PLAN -> IMPLEMENT -> REVIEW_CODE -> SIMPLIFY -> QUA
 | PLAN | planner | Draft `.tandem/handoff/plan.md` |
 | REVIEW_PLAN | reviewer | Review plan, write `.tandem/handoff/review.md` |
 | IMPLEMENT | implementer | Write code |
-| REVIEW_CODE | reviewer | Review code, write `.tandem/handoff/review.md` |
+| REVIEW_CODE | reviewer | Review code and security (see SECURITY.md), write `.tandem/handoff/review.md` |
 | SIMPLIFY | implementer | Run your tool (Claude: `/simplify`, Codex: manual cleanup). Both: shellcheck, linter, tests, bug hunt, DRY. Fix what you find. |
-| QUALITY_REVIEW | reviewer | Run your tool (Codex: `/review` or `codex review --uncommitted`, Claude: independent review). Both: missed tests, safe DRY-ups, readability. Write findings to review.md. If issues found, request-changes back to SIMPLIFY for fixes. |
+| QUALITY_REVIEW | reviewer | Run your tool (Codex: `/review` or `codex review --uncommitted`, Claude: independent review). Both: missed tests, safe DRY-ups, readability, security (see SECURITY.md). Write findings to review.md. If issues found, request-changes back to SIMPLIFY for fixes. |
 | COMMIT | implementer | Ask human, then commit + push |
 
 ### Handoff Rules
@@ -130,6 +130,8 @@ Both agents follow the same quality bar. These apply to all phases, not just SIM
 - Never commit secrets, tokens, .env contents.
 - Validate untrusted input.
 - Keep trust boundaries explicit.
+- See SECURITY.md for project-specific security surface and checklist.
+- Agents maintain SECURITY.md: populate it on first review, update it when the security surface changes.
 
 ### Commit Discipline
 
