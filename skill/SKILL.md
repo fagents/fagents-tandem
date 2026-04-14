@@ -66,6 +66,16 @@ Reviews iterate: REVIEW_PLAN → PLAN, REVIEW_CODE → IMPLEMENT, QUALITY_REVIEW
 | QUALITY_REVIEW | reviewer | Run your tool (Codex: `/review` or `codex review --uncommitted`, Claude: independent review). Both: missed tests, safe DRY-ups, readability. Write findings to review.md. If issues found, request-changes back to SIMPLIFY for fixes. |
 | COMMIT | implementer | Ask human, then commit + push |
 
+## Handoff Rules
+
+You are one of two agents. Your partner is the other.
+- If you are Claude Code, your partner is codex.
+- If you are Codex CLI, your partner is claude.
+
+By default, hand review phases (REVIEW_PLAN, REVIEW_CODE, QUALITY_REVIEW) to your partner, and work phases (PLAN, IMPLEMENT, SIMPLIFY, COMMIT) stay with you. The human can override this at any time.
+
+After handing off (`next`, `accept`, or `request-changes`), STOP. Do not continue working. Wait for the other agent or the human to hand back to you.
+
 ## Commands
 
 ```bash
