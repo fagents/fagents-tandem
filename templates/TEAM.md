@@ -21,8 +21,8 @@ COORDINATE -> PLAN -> REVIEW_PLAN -> IMPLEMENT -> REVIEW_CODE -> SIMPLIFY -> QUA
 | REVIEW_PLAN | reviewer | Review plan, write `.tandem/handoff/review.md` |
 | IMPLEMENT | implementer | Write code |
 | REVIEW_CODE | reviewer | Review code, write `.tandem/handoff/review.md` |
-| SIMPLIFY | implementer | Run your tool (Claude: `/simplify`, Codex: manual cleanup) PLUS full quality checklist. Fix what you find. |
-| QUALITY_REVIEW | reviewer | Run your tool (Codex: `/review` or `codex review --uncommitted`, Claude: independent review) PLUS full quality checklist. Write findings to review.md. If issues found, request-changes back to SIMPLIFY for fixes. |
+| SIMPLIFY | implementer | Run your tool (Claude: `/simplify`, Codex: manual cleanup). Both: shellcheck, linter, tests, bug hunt, DRY. Fix what you find. |
+| QUALITY_REVIEW | reviewer | Run your tool (Codex: `/review` or `codex review --uncommitted`, Claude: independent review). Both: missed tests, safe DRY-ups, readability. Write findings to review.md. If issues found, request-changes back to SIMPLIFY for fixes. |
 | COMMIT | implementer | Ask human, then commit + push |
 
 ### Commands
