@@ -158,6 +158,12 @@ else
     done
 fi
 
+# PROJECT.md is project-owned: create if missing, never update or overwrite
+if [[ ! -f "$PROJECT_DIR/PROJECT.md" ]]; then
+    cp "$SCRIPT_DIR/templates/PROJECT.md" "$PROJECT_DIR/PROJECT.md"
+    echo "  Created PROJECT.md"
+fi
+
 # ── Optional: Zed editor (fresh setup only, TTY only) ──
 if [[ -z "$UPDATE" ]] && [ -t 0 ]; then
     ZED_FOUND=""

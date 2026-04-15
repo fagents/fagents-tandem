@@ -1,6 +1,6 @@
 # Project
 
-<!-- Add your project-specific instructions here -->
+<!-- Add your Claude-specific instructions here. See PROJECT.md for shared project context. -->
 
 ## Tandem
 
