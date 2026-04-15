@@ -205,16 +205,23 @@ cmd_back() {
         REVIEW_CODE)    back_state="IMPLEMENT" ;;
         QUALITY_REVIEW) back_state="SIMPLIFY" ;;
         SIMPLIFY)       back_state="IMPLEMENT" ;;
+        COMMIT)         back_state="PLAN" ;;
         *)            back_state="$S_STATE" ;;
     esac
 
+    # COMMIT -> PLAN keeps current owner (implementer re-plans); all others go to prev_owner
+    local new_owner="$S_PREV_OWNER"
+    if [ "$S_STATE" = "COMMIT" ]; then
+        new_owner="$S_OWNER"
+    fi
+
     local new_rev=$((S_REV + 1))
     [ -z "$summary" ] && summary="Sent back for revision"
-    write_state "$S_TASK" "$back_state" "$S_PREV_OWNER" "$S_REPO" "$summary" "$S_OWNER" "$new_rev"
-    append_event "$action" "$S_TASK" "$S_REPO" "$S_STATE" "$back_state" "$S_OWNER" "$S_PREV_OWNER" "$new_rev" "$summary"
-    echo "$S_TASK | $S_STATE → $back_state r$new_rev | owner: $S_PREV_OWNER | $summary"
+    write_state "$S_TASK" "$back_state" "$new_owner" "$S_REPO" "$summary" "$S_OWNER" "$new_rev"
+    append_event "$action" "$S_TASK" "$S_REPO" "$S_STATE" "$back_state" "$S_OWNER" "$new_owner" "$new_rev" "$summary"
+    echo "$S_TASK | $S_STATE → $back_state r$new_rev | owner: $new_owner | $summary"
 
-    wake "$S_PREV_OWNER" "[$S_OWNER]: $back_state r$new_rev. Run: bash .tandem/bin/handoff.sh status. Read: .tandem/handoff/review.md"
+    wake "$new_owner" "[$S_OWNER]: $back_state r$new_rev. Run: bash .tandem/bin/handoff.sh status. Read: .tandem/handoff/review.md"
 }
 
 cmd_done() {

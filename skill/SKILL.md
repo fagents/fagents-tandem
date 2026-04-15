@@ -53,7 +53,7 @@ If you own the current phase, pick up where you left off. If not, wait for a han
 COORDINATE → PLAN → REVIEW_PLAN → IMPLEMENT → REVIEW_CODE → SIMPLIFY → QUALITY_REVIEW → COMMIT
 ```
 
-Reviews iterate: REVIEW_PLAN → PLAN, REVIEW_CODE → IMPLEMENT, QUALITY_REVIEW → SIMPLIFY.
+Reviews iterate: REVIEW_PLAN → PLAN, REVIEW_CODE → IMPLEMENT, QUALITY_REVIEW → SIMPLIFY. Human feedback at COMMIT → PLAN (full re-cycle).
 
 | Phase | Owner | Work |
 |-------|-------|------|
@@ -74,7 +74,7 @@ You are one of two agents. Your partner is the other.
 
 By default, hand review phases (REVIEW_PLAN, REVIEW_CODE, QUALITY_REVIEW) to your partner, and work phases (PLAN, IMPLEMENT, SIMPLIFY, COMMIT) stay with you. The human can override this at any time.
 
-After handing off (`next`, `accept`, or `request-changes`), STOP. Do not continue working. Wait for the other agent or the human to hand back to you.
+After handing off (`next`, `accept`, or `request-changes`), STOP. Do not continue working. Wait for the other agent or the human to hand back to you. Exception: if the transition keeps you as owner (e.g. COMMIT → PLAN via human feedback), continue working -- you still own the phase.
 
 ## Commands
 
@@ -115,6 +115,8 @@ At the COMMIT phase, always ask the human before running git commit:
 > "Ready to commit? Review in Zed first? (say 'commit' to proceed, or 'let me look' to review)"
 
 Wait for confirmation. Do not commit without it.
+
+If the human requests changes, write their feedback to `.tandem/handoff/review.md`, then run `request-changes --summary "human feedback, see review.md"`. This sends back to PLAN with full review gates for the rework.
 
 ## Rules
 

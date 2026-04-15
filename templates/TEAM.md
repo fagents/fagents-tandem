@@ -10,8 +10,10 @@ Features are built in phases. One agent owns each phase; the other reviews or wa
 
 ```
 COORDINATE -> PLAN -> REVIEW_PLAN -> IMPLEMENT -> REVIEW_CODE -> SIMPLIFY -> QUALITY_REVIEW -> COMMIT
-               |________________|          |_________________|        |_____________________|
-                 request-changes             request-changes             request-changes
+               |________________|          |_________________|        |_____________________|       |
+                 request-changes             request-changes             request-changes             |
+               |________________________________________________________________________________________|
+                                            human request-changes (full re-cycle)
 ```
 
 | Phase | Owner | Work |
@@ -29,7 +31,7 @@ COORDINATE -> PLAN -> REVIEW_PLAN -> IMPLEMENT -> REVIEW_CODE -> SIMPLIFY -> QUA
 
 Each agent has a partner. By default, hand review phases (REVIEW_PLAN, REVIEW_CODE, QUALITY_REVIEW) to your partner, and work phases (PLAN, IMPLEMENT, SIMPLIFY, COMMIT) stay with you. The human can override this at any time.
 
-After handing off, STOP. Do not continue working. Wait for the other agent or the human to hand back to you.
+After handing off, STOP. Do not continue working. Wait for the other agent or the human to hand back to you. Exception: if the transition keeps you as owner (e.g. COMMIT → PLAN via human feedback), continue working.
 
 ### Commands
 
@@ -57,6 +59,8 @@ Or start a feature:
 ### Before Committing
 
 At the COMMIT phase, always ask the human before running git commit. Wait for confirmation. The human may want to review changes in Zed or another tool first.
+
+If the human requests changes, write their feedback to `.tandem/handoff/review.md` and run `request-changes`. This sends back to PLAN for a full re-cycle with all review gates.
 
 ### Rules
 
