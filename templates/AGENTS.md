@@ -1,6 +1,8 @@
 # Project
 
-<!-- Add your Codex-specific instructions here. See PROJECT.md for shared project context. -->
+<!-- Add your Codex-specific instructions here. -->
+
+Read TEAM.md, PROJECT.md, and SECURITY.md for the full protocol, project context, and security surface.
 
 ## Tandem
 
