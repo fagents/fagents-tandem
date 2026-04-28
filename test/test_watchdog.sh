@@ -303,6 +303,32 @@ HASH_AFTER=$(shasum -a 256 \
     | awk '{print $1}' | sort | tr '\n' ' ')
 assert "read-only invariant: handoff files unchanged" "$HASH_BEFORE" "$HASH_AFTER"
 
+# Auto-discover: invoking watchdog.sh from a project's .tandem/bin/ without an
+# explicit <project-dir> arg should auto-resolve the project to ../.. of the
+# script's own location.
+new_project
+make_pty_for_owner "claude"
+make_state "claude" "$(iso_at "$PAST_STALE")"
+# Copy watchdog.sh into the project's .tandem/bin/ so the script's BASH_SOURCE
+# points at <project>/.tandem/bin/watchdog.sh and ../.. resolves to the project.
+cp "$ROOT/bin/watchdog.sh" "$PROJECT_DIR/.tandem/bin/watchdog.sh"
+chmod +x "$PROJECT_DIR/.tandem/bin/watchdog.sh"
+WATCHDOG_NOW_EPOCH="$NOW" bash "$PROJECT_DIR/.tandem/bin/watchdog.sh" --once 2>/dev/null
+assert "auto-discover: wake-sent emitted with no <project-dir> arg" "1" "$(log_kind_count wake-sent)"
+
+# --help prints docstring with comment markers stripped (BSD + GNU sed).
+HELP_OUT=$(bash "$ROOT/bin/watchdog.sh" --help 2>&1)
+case "$HELP_OUT" in
+    "fagents-tandem watchdog"*)
+        echo "ok - --help prints stripped docstring"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+        ;;
+    *)
+        echo "not ok - --help should not start with '#' (got '${HELP_OUT:0:40}...')"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        ;;
+esac
+
 # wake.sh contract: TTY-missing -> exit 2 (not 0).
 # Test against the canonical wake.sh with a synthetic target whose .tty does
 # not exist. Pre- and post-cleanup defensively in case any future wake.sh

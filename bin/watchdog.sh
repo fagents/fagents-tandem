@@ -10,9 +10,15 @@
 # handoff/*.md. The watchdog only writes to its own log.
 #
 # Usage:
-#   bash watchdog.sh <project-dir>            daemon mode (loops)
-#   bash watchdog.sh --once <project-dir>     run one tick, exit
-#   WATCHDOG_ONCE=1 bash watchdog.sh <dir>    same as --once
+#   bash watchdog.sh                          # daemon, project = .. of script
+#   bash watchdog.sh --once                   # one tick against auto-discovered project
+#   bash watchdog.sh <project-dir>            # daemon for an explicit project path
+#   bash watchdog.sh --once <project-dir>     # one tick against an explicit path
+#   bash watchdog.sh --help                   # print this help
+#
+# When invoked without <project-dir>, the script computes the project root
+# from its own location: .tandem/bin/watchdog.sh -> .. -> .. is the project.
+# Pass an explicit path when invoking from cron / launchd / a different cwd.
 #
 # Env vars:
 #   WATCHDOG_THRESHOLD_SECONDS    idle threshold before first poke (default 1800)
@@ -31,14 +37,19 @@ PROJECT=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --once)    ONCE=1; shift ;;
-        --help|-h) sed -n '2,/^$/p' "$0" | sed 's/^# \?//'; exit 0 ;;
+        --help|-h) sed -n '2,/^$/p' "$0" | sed -E 's/^# ?//'; exit 0 ;;
         *)         PROJECT="$1"; shift ;;
     esac
 done
 
-[ -n "$PROJECT" ] || { echo "Usage: watchdog.sh [--once] <project-dir>" >&2; exit 1; }
+# Auto-discover project from script location when no explicit arg was given.
+# Script lives at <project>/.tandem/bin/watchdog.sh, so ../.. is the project.
+if [ -z "$PROJECT" ]; then
+    PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+fi
+
 [ -d "$PROJECT" ] || { echo "watchdog: $PROJECT is not a directory" >&2; exit 1; }
-[ -d "$PROJECT/.tandem" ] || { echo "watchdog: $PROJECT/.tandem missing" >&2; exit 1; }
+[ -d "$PROJECT/.tandem" ] || { echo "watchdog: $PROJECT/.tandem missing (pass an explicit project-dir if invoking from outside the project)" >&2; exit 1; }
 
 THRESHOLD="${WATCHDOG_THRESHOLD_SECONDS:-1800}"
 INTERVAL="${WATCHDOG_INTERVAL_SECONDS:-300}"
