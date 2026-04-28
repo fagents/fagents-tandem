@@ -1,9 +1,19 @@
 #!/bin/bash
-# Wake an agent via TIOCSTI. Best-effort — prints warning on failure, never blocks.
+# Wake an agent via TIOCSTI. Prints warning on failure.
+#
+# Exit codes:
+#   0  message delivered (TIOCSTI succeeded)
+#   1  usage error
+#   2  no TTY registered for the target
+#   3  sudo/TIOCSTI failure (target TTY exists but write failed)
+#
+# Callers that want best-effort tolerance (handoff.sh transitions, feature)
+# should use `bash wake.sh ... || true`. The watchdog uses the exit code to
+# distinguish wake-sent from wake-failed.
 #
 # Usage: wake.sh <agent> <message>
 #   wake.sh rivet "[Kai]: Review ready"
-#   wake.sh kai "[Juho]: New feature — fix reconnect"
+#   wake.sh kai "[Juho]: New feature -- fix reconnect"
 
 set -euo pipefail
 
@@ -17,7 +27,7 @@ MESSAGE="${2:-}"
 TTY_DEV=$(tr -d '[:space:]' < "$AGENTS_DIR/${TARGET}.tty" 2>/dev/null) || {
     echo "WARN: no TTY registered for $TARGET" >&2
     echo "  $TARGET must check .tandem/handoff/state.json manually" >&2
-    exit 0
+    exit 2
 }
 
 sudo -n python3 -c "
@@ -31,4 +41,5 @@ os.close(fd)
 " "$TTY_DEV" "$MESSAGE" 2>&1 || {
     echo "WARN: wake failed for $TARGET (sudo/TIOCSTI error)" >&2
     echo "  $TARGET must check .tandem/handoff/state.json manually" >&2
+    exit 3
 }

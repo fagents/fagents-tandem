@@ -69,7 +69,7 @@ echo "Setting up .tandem/..."
 mkdir -p "$TANDEM_DIR/bin" "$TANDEM_DIR/handoff"
 
 # Copy scripts (always refresh — these are canonical)
-for script in handoff.sh wake.sh feature; do
+for script in handoff.sh wake.sh feature watchdog.sh; do
     if [[ -f "$SCRIPT_DIR/bin/$script" ]]; then
         cp "$SCRIPT_DIR/bin/$script" "$TANDEM_DIR/bin/$script"
         chmod +x "$TANDEM_DIR/bin/$script"
@@ -84,7 +84,7 @@ cat > "$TANDEM_DIR/.gitignore" << 'EOF'
 !bin/**
 EOF
 
-echo "  Created .tandem/bin/ with handoff.sh, wake.sh, feature"
+echo "  Created .tandem/bin/ with handoff.sh, wake.sh, feature, watchdog.sh"
 
 # ── Launcher scripts ──
 for launcher in launch-claude launch-codex; do
@@ -212,3 +212,10 @@ echo "Next steps:"
 echo "  1. Start Claude Code: ./launch-claude"
 echo "  2. Start Codex CLI:   ./launch-codex"
 echo "  3. Start a feature:   .tandem/bin/feature \"description\""
+echo ""
+echo "Optional liveness nudge (recommended for long-running auto-chain):"
+echo "  4. In a separate tmux/screen pane, run:"
+echo "       bash .tandem/bin/watchdog.sh \"\$PWD\""
+echo "     The watchdog pokes the current state owner via wake.sh if they"
+echo "     have been idle past WATCHDOG_THRESHOLD_SECONDS (default 1800)."
+echo "     See bash .tandem/bin/watchdog.sh --help for env-var overrides."

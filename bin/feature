@@ -47,6 +47,8 @@ if [ -z "$TASK" ]; then
     [ -z "$TASK" ] && TASK="task-$(date +%Y%m%d-%H%M%S)"
 fi
 
-# State first (unprivileged), wake second (best-effort)
+# State first (unprivileged), wake second (best-effort: tolerate wake.sh exit
+# 2 = no TTY registered, exit 3 = sudo/TIOCSTI failure, since the state has
+# already been initialized).
 bash "$ROOT/.tandem/bin/handoff.sh" init --task "$TASK" --repo "$REPO" --owner "$OWNER" --summary "$DESCRIPTION"
-bash "$ROOT/.tandem/bin/wake.sh" "$OWNER" "[$(whoami)]: New feature — $DESCRIPTION. Run: bash .tandem/bin/handoff.sh status"
+bash "$ROOT/.tandem/bin/wake.sh" "$OWNER" "[$(whoami)]: New feature -- $DESCRIPTION. Run: bash .tandem/bin/handoff.sh status" || true
