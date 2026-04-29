@@ -76,29 +76,13 @@ TIOCSTI injects keystrokes into another terminal session. Works on macOS Sequoia
 sudo bash .tandem/bin/wake.sh codex "[claude]: check .tandem/handoff/review.md"
 ```
 
-`wake.sh` exit codes: `0` delivered, `1` usage, `2` no TTY registered, `3` sudo / TIOCSTI failure. Callers that want best-effort tolerance (`handoff.sh` transitions, `feature`) suffix `|| true`. The watchdog uses the exit code to distinguish wake-sent from wake-failed.
+`wake.sh` exit codes: `0` delivered, `1` usage, `2` no TTY registered, `3` sudo / TIOCSTI failure. Callers that want best-effort tolerance (`handoff.sh` transitions, `feature`) suffix `|| true`. Downstream tools (e.g. `fagents-tandem-pulse`) use the exit code to distinguish wake-sent from wake-failed.
 
-## Watchdog
+## Continuity layer (optional)
 
-A liveness nudge for long-running auto-chain projects. Polls `state.json` and pokes the current state owner via `wake.sh` when idle past a threshold. Read-only on tandem state, never mutates `state.json` or `events.jsonl`. Distinguishes wake-sent from wake-failed via `wake.sh` exit codes, and emits a loud operator-visible `dead-tty` alert when the owner's registered TTY is missing, empty, not a character device, not writable, or not interactive (e.g. `/dev/null` would otherwise pass naive char-device checks).
+For long-running auto-chain projects that want a liveness nudge plus goal-mode direction prompts, see `fagents-tandem-pulse` -- an add-on package that polls `.tandem/handoff/state.json`, pokes the current state owner when idle, and prompts the configured goal owner toward goal-aware reasoning when there is no active task. (Local clone for now; public URL TBD.)
 
-```bash
-# Run alongside the agents in a separate tmux/screen pane:
-bash .tandem/bin/watchdog.sh "$PWD"
-
-# Or one-shot under cron / systemd-timer:
-bash .tandem/bin/watchdog.sh --once "$PWD"
-```
-
-Tunables (env vars):
-- `WATCHDOG_THRESHOLD_SECONDS` (default 1800): owner-idle threshold before first poke
-- `WATCHDOG_INTERVAL_SECONDS` (default 300): daemon-mode poll interval
-- `WATCHDOG_BACKOFF_FACTOR` (default 2): multiplier for repeated-poke backoff
-- `WATCHDOG_MAX_BACKOFF_SECONDS` (default 7200): cap on backoff window
-- `WATCHDOG_VERBOSE=1`: log owner-active happy-path events
-- `WATCHDOG_ONCE=1`: same as `--once`
-
-Audit log lives at `.tandem/watchdog.log` (JSONL). Event kinds: `wake-sent`, `wake-failed`, `dead-tty`, `rate-limited`, `no-active-task`, `owner-active` (verbose only).
+Pulse is intentionally separate from this protocol package so `fagents-tandem` stays a focused tandem protocol + dev tooling layer.
 
 ## Updating
 
@@ -114,5 +98,5 @@ Scripts in `.tandem/bin/` are always refreshed. For docs (TEAM.md, CLAUDE.md, AG
 
 - Not a messaging system or inbox
 - Not a multi-task scheduler
-- Not a process supervisor -- the watchdog nudges idle owners but does not restart, kill, or supervise the agent CLIs
+- Not a process supervisor -- continuity / liveness lives in the `fagents-tandem-pulse` add-on
 - Not limited to Claude + Codex — works with any two CLI agents

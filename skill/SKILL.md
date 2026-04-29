@@ -125,6 +125,6 @@ If the human requests changes, write their feedback to `.tandem/handoff/review.m
 3. One transition per handoff -- don't skip phases.
 4. Human can override `.tandem/handoff/state.json` directly.
 
-## Optional: liveness watchdog
+## Optional: continuity layer
 
-For long-running auto-chain projects, the operator can run `bash .tandem/bin/watchdog.sh "$PWD"` in a separate tmux/screen pane. The watchdog pokes the current state owner via `wake.sh` if they have been idle past `WATCHDOG_THRESHOLD_SECONDS` (default 1800), distinguishes wake-sent from wake-failed via `wake.sh` exit codes, and emits a loud `dead-tty` alert when the registered TTY is missing or non-interactive. Read-only on tandem state. Audit log at `.tandem/watchdog.log`.
+For long-running auto-chain projects, see the `fagents-tandem-pulse` add-on. It polls `.tandem/handoff/state.json` and pokes the current state owner when idle (reactive mode) plus prompts the configured goal owner toward goal-aware reasoning when there is no active task (goal mode). Read-only on tandem state. Separate skill `tandem-pulse` documents the agent-side response patterns when installed.
